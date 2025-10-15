@@ -19,7 +19,7 @@ app.post('/check-role', async (req, res) => {
             `https://discord.com/api/guilds/${guildId}/members/${discordId}`,
             {
                 headers: {
-                    Authorization: `Bot ${botToken}` // 🔧 Düzeltildi
+                    Authorization: botToken
                 }
             }
         );
