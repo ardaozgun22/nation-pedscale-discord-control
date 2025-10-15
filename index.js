@@ -11,14 +11,15 @@ app.post('/check-role', async (req, res) => {
     const { discordId, roles, guildId, botToken } = req.body;
 
     if (!discordId || !roles || !Array.isArray(roles) || !guildId || !botToken) {
-        return res.status(400).json({ error: 'discordId ve roles alanları zorunludur.' });
+        return res.status(400).json({ error: 'discordId, roles, guildId ve botToken alanları zorunludur.' });
     }
 
     try {
         const response = await axios.get(
-            `https://discord.com/api/guilds/${guildId}/members/${discordId}`, {
+            `https://discord.com/api/guilds/${guildId}/members/${discordId}`,
+            {
                 headers: {
-                Authorization: botToken
+                    Authorization: `Bot ${botToken}` // 🔧 Düzeltildi
                 }
             }
         );
@@ -26,13 +27,13 @@ app.post('/check-role', async (req, res) => {
         const userRoles = response.data.roles || [];
         const hasRole = userRoles.some(role => roles.includes(role));
 
-        return res.status(200).json({hasRole});
+        return res.status(200).json({ hasRole });
     } catch (error) {
         const status = error.response?.status || 500;
         const msg = error.response?.data?.message || error.message;
-        console.error(`Discord API Hatası [${status}]: ${msg}`);
-        return res.status(status).json({hasRole: false, error: msg});
+        console.error(`❌ Discord API Hatası [${status}]: ${msg}`);
+        return res.status(status).json({ hasRole: false, error: msg });
     }
 });
 
-app.listen(port, () => {});
+app.listen(port, () => console.log(`✅ Server running on port ${port}`));
