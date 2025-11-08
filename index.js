@@ -20,7 +20,8 @@ app.post('/check-role', async (req, res) => {
             {
                 headers: {
                     Authorization: botToken
-                }
+                },
+                timeout: 8000
             }
         );
     
@@ -31,21 +32,22 @@ app.post('/check-role', async (req, res) => {
     } catch (error) {
         const status = error.response?.status || 500;
         const msg = error.response?.data?.message || error.message || "Unknown error";
-        
-        console.error(`❌ Discord API Hatası [${status}]: ${msg}`);
-        
-        const body = JSON.stringify({
-        hasRole: false,
-        error: msg,
-        discordStatus: status
+        const duration = Date.now() - start;
+
+        if (error.code === 'ECONNABORTED') {
+            console.error(`⏰ [${discordId}] 10 saniyeyi geçti, timeout (${duration}ms)`);
+        } else if (status === 429) {
+            console.error(`⚠️ [${discordId}] Discord rate limit (429) - tekrar deneme gecikmesi olabilir`);
+        } else {
+            console.error(`❌ [${discordId}] Discord API hatası [${status}]: ${msg} (${duration}ms)`);
+        }
+
+        res.status(200).json({
+            hasRole: false,
+            error: msg,
+            discordStatus: status,
+            responseTimeMs: duration
         });
-        
-        res.writeHead(200, {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(body),
-        "Connection": "close"
-        });
-        res.end(body);
     }
 });
 
