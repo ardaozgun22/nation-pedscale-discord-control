@@ -32,6 +32,7 @@ app.post('/check-role', async (req, res) => {
         const status = error.response?.status || 500;
         const msg = error.response?.data?.message || error.message;
         console.error(`❌ Discord API Hatası [${status}]: ${msg}`);
+        console.log(1);
         res.setHeader("Transfer-Encoding", ""); // chunked'ı sıfırla
         res.writeHead(status, {
           "Content-Type": "application/json",
