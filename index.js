@@ -23,23 +23,29 @@ app.post('/check-role', async (req, res) => {
                 }
             }
         );
-
+    
         const userRoles = response.data.roles || [];
         const hasRole = userRoles.some(role => roles.includes(role));
-
+    
         return res.status(200).json({ hasRole });
     } catch (error) {
         const status = error.response?.status || 500;
-        const msg = error.response?.data?.message || error.message;
+        const msg = error.response?.data?.message || error.message || "Unknown error";
+        
         console.error(`❌ Discord API Hatası [${status}]: ${msg}`);
-        res.setHeader("Transfer-Encoding", ""); // chunked'ı sıfırla
-        res.writeHead(status, {
-          "Content-Type": "application/json",
-          "Content-Length": Buffer.byteLength(JSON.stringify({ hasRole: false, error: msg })),
-          "Connection": "close"
+        
+        const body = JSON.stringify({
+        hasRole: false,
+        error: msg,
+        discordStatus: status
         });
-        res.end(JSON.stringify({ hasRole: false, error: msg }));
-        // return res.status(status).json({ hasRole: false, error: msg });
+        
+        res.writeHead(200, {
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(body),
+        "Connection": "close"
+        });
+        res.end(body);
     }
 });
 
