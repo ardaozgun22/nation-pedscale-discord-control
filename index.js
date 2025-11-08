@@ -32,7 +32,12 @@ app.post('/check-role', async (req, res) => {
         const status = error.response?.status || 500;
         const msg = error.response?.data?.message || error.message;
         console.error(`❌ Discord API Hatası [${status}]: ${msg}`);
-        res.writeHead(status, { 'Content-Type': 'application/json', 'Connection': 'close' });
+        res.setHeader("Transfer-Encoding", ""); // chunked'ı sıfırla
+        res.writeHead(status, {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(JSON.stringify({ hasRole: false, error: msg })),
+          "Connection": "close"
+        });
         res.end(JSON.stringify({ hasRole: false, error: msg }));
         // return res.status(status).json({ hasRole: false, error: msg });
     }
