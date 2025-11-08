@@ -32,7 +32,9 @@ app.post('/check-role', async (req, res) => {
         const status = error.response?.status || 500;
         const msg = error.response?.data?.message || error.message;
         console.error(`❌ Discord API Hatası [${status}]: ${msg}`);
-        return res.status(status).json({ hasRole: false, error: msg });
+        res.setHeader("Content-Type", "application/json");
+        return res.status(status).send(JSON.stringify({ hasRole: false, error: msg }));
+        // return res.status(status).json({ hasRole: false, error: msg });
     }
 });
 
