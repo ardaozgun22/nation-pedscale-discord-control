@@ -13,7 +13,7 @@ app.post('/check-role', async (req, res) => {
     if (!discordId || !roles || !Array.isArray(roles) || !guildId || !botToken) {
         return res.status(400).json({ error: 'discordId, roles, guildId ve botToken alanları zorunludur.' });
     }
-
+    const start = Date.now();
     try {
         const response = await axios.get(
             `https://discord.com/api/guilds/${guildId}/members/${discordId}`,
